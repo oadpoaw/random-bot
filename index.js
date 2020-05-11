@@ -20,8 +20,6 @@ const sequelize = new Sequelize("database", "username", "password", {
   // SQLite only
   storage: "database.sqlite"
 });
-
-const force = true;
 const ms = require("pretty-ms");
 const counter = sequelize.define("counter", {
   counter: {
@@ -57,7 +55,7 @@ const marriage = sequelize.define("marriage", {
   }
 });
 
-sequelize.sync({ force: false }, () => {
+sequelize.sync({ force: true }, () => {
   console.log("database synced");
 });
 
@@ -274,7 +272,7 @@ client.on("message", async message => {
           }
         });
         if (!couple) continue;
-         text += `:heart: <@${couple.user_id}> § <@${couple.waifu_id}> :heart:\n`;
+        text += `:heart: <@${couple.user_id}> § <@${couple.waifu_id}> :heart:\n`;
       }
       embed.setDescription(text);
       return message.channel.send(embed);
