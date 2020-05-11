@@ -145,9 +145,7 @@ client.on("message", async message => {
 
       const filter = response => {
         const m = response.content.toLowerCase();
-        return (
-          response.author.id === target.id && m.startsWith("yes")
-        );
+        return response.author.id === target.id && m.startsWith("yes");
       };
       message.channel.send(
         `Hey ${target} will you accept ${message.author} as your beloved husband/wife? yes or no`
@@ -201,10 +199,7 @@ client.on("message", async message => {
       }
       const filter = responds => {
         const m = responds.content.toLowerCase();
-        return (
-          responds.author.id === me.waifu_id &&
-          m.startsWith("yes")
-        );
+        return responds.author.id === me.waifu_id && m.startsWith("yes");
       };
       message.channel.send(`
         Hey <@${me.waifu_id}> will you sign the divorce papers from <@${message.author.id}>? yes or no?
@@ -212,6 +207,16 @@ client.on("message", async message => {
       message.channel
         .awaitMessages(filter, { max: 1, time: 30000, errors: ["time"] })
         .then(async collected => {
+          let IDSYS = await counter.findOne({
+            where: {
+              counter: "ID_SYSTEM"
+            }
+          });
+          if (!IDSYS) {
+            IDSYS = await counter.create({
+              countet: "ID_SYSTEM"
+            });
+          }
           const waifu = me.waifu_id;
           await marriage.destroy({
             where: {
@@ -223,6 +228,8 @@ client.on("message", async message => {
               user_id: waifu
             }
           });
+          IDSYS.count--;
+          IDSYS.save();
           return message.channel.send(
             `<@${message.author.id}> and <@${waifu}> has gotten a divorced. :(`
           );
@@ -255,10 +262,11 @@ client.on("message", async message => {
     }
     if (message.content.startsWith("?couples")) {
       let text = "\u200b";
+
       const embed = new Discord.MessageEmbed()
         .setColor("RANDOM")
         .setTitle("All Couples in the server");
-      for (let i = 0; i < 500; i++) {
+      for (let i = 0; i < 56; i++) {
         const couple = await marriage.findOne({
           where: {
             couple_id: i
@@ -298,4 +306,4 @@ client.on("message", async message => {
     }
   }
 });
-//client.login(process.env.TOKEN);
+client.login(process.env.TOKEN);
