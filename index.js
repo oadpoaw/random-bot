@@ -266,6 +266,7 @@ client.on("message", async message => {
       const embed = new Discord.MessageEmbed()
         .setColor("RANDOM")
         .setTitle("All Couples in the server");
+      
       for (let i = 0; i < 56; i++) {
         const couple = await marriage.findOne({
           where: {
@@ -273,9 +274,7 @@ client.on("message", async message => {
           }
         });
         if (!couple) continue;
-        if (couple) {
-          text += `:heart: <@${couple.user_id}> § <@${couple.waifu_id}> :heart:\n`;
-        }
+         text += `:heart: <@${couple.user_id}> § <@${couple.waifu_id}> :heart:\n`;
       }
       embed.setDescription(text);
       return message.channel.send(embed);
