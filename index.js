@@ -21,32 +21,7 @@ const sequelize = new Sequelize("database", "username", "password", {
   storage: "database.sqlite"
 });
 const ms = require("pretty-ms");
-const counter = sequelize.define("counter", {
-  counter: {
-    type: Sequelize.STRING,
-    unique: true,
-    primaryKey: true
-  },
-  count: {
-    type: Sequelize.INTEGER,
-    defaultValue: 0,
-    allowNull: false
-  }
-});
-const _IDSYS = counter.findOne({
-  where: {
-    counter: "ID_SYSTEM"
-  }
-});
-if (!_IDSYS)
-  _IDSYS = counter.create({
-    counter: "ID_SYSTEM",
-    count: 0
-  });
 const marriage = sequelize.define("marriage", {
-  couple_id: {
-    type: Sequelize.INTEGER
-  },
   user_id: {
     type: Sequelize.STRING
   },
@@ -151,28 +126,14 @@ client.on("message", async message => {
       message.channel
         .awaitMessages(filter, { max: 1, time: 30000, errors: ["time"] })
         .then(async collected => {
-          let IDSYS = await counter.findOne({
-            where: {
-              counter: "ID_SYSTEM"
-            }
-          });
-          if (!IDSYS) {
-            IDSYS = await counter.create({
-              countet: "ID_SYSTEM"
-            });
-          }
           const oof = await marriage.create({
-            couple_id: IDSYS.count,
             user_id: message.author.id,
             waifu_id: target.id
           });
           const yes = await marriage.create({
-            couple_id: IDSYS.count,
             user_id: target.id,
             waifu_id: message.author.id
           });
-          IDSYS.count++;
-          IDSYS.save();
           return message.channel.send(
             `${message.author} and ${target} has been married yay.`
           );
@@ -205,16 +166,6 @@ client.on("message", async message => {
       message.channel
         .awaitMessages(filter, { max: 1, time: 30000, errors: ["time"] })
         .then(async collected => {
-          let IDSYS = await counter.findOne({
-            where: {
-              counter: "ID_SYSTEM"
-            }
-          });
-          if (!IDSYS) {
-            IDSYS = await counter.create({
-              countet: "ID_SYSTEM"
-            });
-          }
           const waifu = me.waifu_id;
           await marriage.destroy({
             where: {
@@ -226,8 +177,6 @@ client.on("message", async message => {
               user_id: waifu
             }
           });
-          IDSYS.count--;
-          IDSYS.save();
           return message.channel.send(
             `<@${message.author.id}> and <@${waifu}> has gotten a divorced. :(`
           );
@@ -260,20 +209,13 @@ client.on("message", async message => {
     }
     if (message.content.startsWith("?couples")) {
       let text = "\u200b";
-
       const embed = new Discord.MessageEmbed()
         .setColor("RANDOM")
         .setTitle("All Couples in the server");
-      
-      for (let i = 0; i < 56; i++) {
-        const couple = await marriage.findOne({
-          where: {
-            couple_id: i
-          }
-        });
-        if (!couple) continue;
+      const all = await marriage.findAll();
+      all.map((couple, pos) => {
         text += `:heart: <@${couple.user_id}> § <@${couple.waifu_id}> :heart:\n`;
-      }
+       }).join("\n");
       embed.setDescription(text);
       return message.channel.send(embed);
     }
